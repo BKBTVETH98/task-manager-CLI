@@ -30,7 +30,7 @@ func main() {
 		file.WriteJson(t)
 		newtask := &task.Task{}
 		err = file.ReadJson(newtask)
-		fmt.Print(*newtask)
-		return
+		fmt.Println(*newtask)
+
 	}
 }

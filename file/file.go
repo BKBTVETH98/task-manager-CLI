@@ -21,22 +21,26 @@ func ReadJson(t *task.Task) error {
 		return err
 	}
 	return nil
-
 }
 
-func WriteJson(t *task.Task) {
+func WriteJson(t *task.Task) error {
 	file, err := os.Create("task.json")
 	if err != nil {
 		color.Red("нет файла")
+		return err
 	}
+	defer file.Close()
 	text, err := json.Marshal(t)
 	if err != nil {
 		color.Red("ошибка преобразования")
+		return err
 	}
 	writeByte, err := file.Write(text)
 	if err != nil {
 		color.Red("ошибка записи", writeByte, err)
+		return err
 	}
+	return nil
 }
 
 func EditJson() {
