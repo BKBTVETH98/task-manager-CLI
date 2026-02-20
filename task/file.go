@@ -1,29 +1,21 @@
-package file
+package task
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
-	"task-manager/task"
 
 	"github.com/fatih/color"
 )
 
-func ReadJson(t *task.Task) error {
-
-	file, err := os.ReadFile("task.json")
-	if err != nil {
-		color.Red("ошибка чтения", err)
-		return err
-	}
-	err = json.Unmarshal(file, &t)
-	if err != nil {
-		color.Red("ошибка преобразования из json", err)
-		return err
-	}
+func ReadJson(t *Task) error { // нужно сделать чтение массива json
+	v := NewVault()
+	fmt.Println(v)
 	return nil
 }
 
-func WriteJson(t *task.Task) error {
+func WriteJson(t []byte) error {
+
 	file, err := os.Create("task.json")
 	if err != nil {
 		color.Red("нет файла")
@@ -41,8 +33,4 @@ func WriteJson(t *task.Task) error {
 		return err
 	}
 	return nil
-}
-
-func EditJson() {
-
 }
