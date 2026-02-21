@@ -27,7 +27,7 @@ func NewTask(des string, stat StatusCode) (*Task, error) {
 	if des == "" {
 		return nil, fmt.Errorf("описание задачи пустое")
 	}
-	if err := stat.validate(); err != nil {
+	if err := stat.Validate(); err != nil {
 		return nil, err
 	}
 
@@ -43,7 +43,7 @@ func NewTask(des string, stat StatusCode) (*Task, error) {
 	}, nil
 }
 
-func (s StatusCode) validate() error {
+func (s StatusCode) Validate() error {
 	switch s {
 	case runningStatus, pauseStatus, doneStatus:
 		return nil

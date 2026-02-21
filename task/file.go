@@ -1,36 +1,45 @@
 package task
 
 import (
-	"encoding/json"
+	"bufio"
 	"fmt"
 	"os"
 
 	"github.com/fatih/color"
 )
 
-func ReadJson(t *Task) error { // нужно сделать чтение массива json
+const (
+	fileName string = "task.json"
+)
+
+func ReadJson() error { // нужно сделать чтение массива json
+	_, err := os.Stat("task.json")
+	if os.IsNotExist(err) {
+		fmt.Println("Файл не существует или ошибка доступа:", err)
+		return err
+	}
 	v := NewVault()
 	fmt.Println(v)
 	return nil
 }
 
 func WriteJson(t []byte) error {
-
-	file, err := os.Create("task.json")
+	file, err := os.Create(fileName)
 	if err != nil {
-		color.Red("нет файла")
+		return fmt.Errorf("ошибка создания файла: %w", err)
+	}
+	defer file.Close()
+
+	_, err = file.Write(t)
+
+	if err != nil {
+		color.Red("ошибка записи - %w", err)
 		return err
 	}
 	defer file.Close()
-	text, err := json.Marshal(t)
-	if err != nil {
-		color.Red("ошибка преобразования")
-		return err
-	}
-	writeByte, err := file.Write(text)
-	if err != nil {
-		color.Red("ошибка записи", writeByte, err)
-		return err
-	}
 	return nil
+}
+func GetReader() *bufio.Reader {
+	r := bufio.NewReader(os.Stdin)
+	return r
 }

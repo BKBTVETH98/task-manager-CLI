@@ -13,22 +13,24 @@ type Vault struct {
 }
 
 func NewVault() *Vault { //чтение
-	file, err := os.ReadFile("task.json")
+	file, err := os.ReadFile(fileName)
 	if err != nil {
 		fmt.Errorf("ошибка чтения:  %w", err)
-		return &Vault{Tasks: []Task{}}
+		return &Vault{Tasks: []Task{}, UpdateAt: time.Now().Format(time.DateTime)}
 	}
 	var vault Vault
 	err = json.Unmarshal(file, &vault)
 	if err != nil {
 		fmt.Errorf("не удалось преобразовать в структуру %w", err)
+		return &Vault{Tasks: []Task{}, UpdateAt: time.Now().Format(time.DateTime)}
 	}
 	return &vault
 
 }
 
-func (vault *Vault) AddTasks(t *Task) error { //добавление
-	vault.Tasks = append(vault.Tasks, *t)
+func (vault *Vault) AddTasks(t Task) error { //добавление
+	t.Id = len(vault.Tasks) + 1
+	vault.Tasks = append(vault.Tasks, t)
 
 	data, err := vault.ToBytes()
 	vault.UpdateAt = time.Now().Format(time.DateTime)
@@ -40,7 +42,7 @@ func (vault *Vault) AddTasks(t *Task) error { //добавление
 }
 
 func (v *Vault) ToBytes() ([]byte, error) {
-	r, err := os.ReadFile("task.json")
+	r, err := json.Marshal(v)
 	if err != nil {
 		fmt.Errorf("Ошибка преобразования - %w", err)
 	}
