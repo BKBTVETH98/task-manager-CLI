@@ -31,7 +31,7 @@ func NewTask(des string, stat StatusCode) (*Task, error) {
 		return nil, err
 	}
 
-	id++
+	id++ //увеличиваем id для каждой новой задачи
 	now := time.Now().Format(time.DateTime)
 
 	return &Task{

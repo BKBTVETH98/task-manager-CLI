@@ -19,7 +19,7 @@ func main() {
 		2: getTask,
 		3: func() {
 			if err := foundTask(); err != nil {
-				color.Red(err.Error())
+				fmt.Println(err.Error())
 			}
 		},
 		4: func() {
@@ -30,19 +30,24 @@ func main() {
 	}
 
 	for {
-		color.Green("выберите действие, введя цифру от 1 до %d", len(m)) //пофиксить двойную печать
+		color.Yellow("выберите действие, введя цифру от 1 до %d", len(m)) //пофиксить двойную печать
 		color.Green("1, Создать таску")
 		color.Green("2, вывести все таски")
 		color.Green("3, изменить статус таски по Id")
 		color.Green("4, вывести таску по Id")
 		fmt.Print("Ваш выбор: ")
+
 		choice, err := task.GetReader().ReadString('\n')
 		if err != nil {
-			color.Red("ошибка чтения строки: %v", err)
+			color.Red("ошибка чтения строки: ", err)
 			continue
 		}
 
-		choiceInt, _ := strconv.Atoi(strings.TrimSpace(choice))
+		choiceInt, err := strconv.Atoi(strings.TrimSpace(choice))
+		if err != nil {
+			color.Red("ошибка преобразования в INT: ", err)
+			continue
+		}
 
 		if j, ok := m[choiceInt]; ok {
 			j()
@@ -68,12 +73,13 @@ func newtask() {
 	color.Green("Доступные варианты: running, pause, done")
 	fmt.Print("Введите статус задачи: ")
 
-	statusInput, err := reader.ReadString('\n')
+	testInput, err = reader.ReadString('\n')
 	if err != nil {
 		color.Red("ошибка чтения строки: %v", err)
 		return
 	}
-	status = strings.TrimSpace(statusInput)
+
+	status = strings.TrimSpace(testInput)
 
 	t, err := task.NewTask(scanTextTask, task.StatusCode(status))
 	if err != nil {
@@ -93,19 +99,28 @@ func getTask() {
 		color.Red("ошибка вывода", err)
 	}
 	color.Yellow(string(data))
-
 }
 
 func foundTask() error {
 	vault := task.NewVault()
-	var searchId int
 	var status task.StatusCode
 
-	fmt.Print("Введите id task ")
-	fmt.Scan(&searchId)
+	fmt.Print("Введите id task: ")
 
-	if len(vault.Tasks) >= searchId {
-		taskId := vault.Tasks[searchId-1]
+	choice, err := task.GetReader().ReadString('\n')
+
+	if err != nil {
+		return fmt.Errorf("Ошибка считывания - %w", err)
+	}
+
+	choiceInt, err := strconv.Atoi(strings.TrimSpace(choice))
+
+	if err != nil {
+		return fmt.Errorf("Ошибка преобразования в Int - %w", err)
+	}
+
+	if vault.Tasks != nil && len(vault.Tasks) >= choiceInt && choiceInt > 0 {
+		taskId := vault.Tasks[choiceInt-1]
 		fmt.Print("Введите new status task")
 		fmt.Scan(&status)
 		if err := status.Validate(); err != nil {
@@ -113,7 +128,7 @@ func foundTask() error {
 		}
 		taskId.Status = status
 		taskId.UpdatedAt = time.Now().Format(time.DateTime)
-		vault.Tasks[searchId-1] = taskId
+		vault.Tasks[choiceInt-1] = taskId
 		data, err := vault.ToBytes()
 		vault.UpdateAt = time.Now().Format(time.DateTime)
 		if err != nil {
@@ -132,9 +147,17 @@ func viewTaskId() error {
 	var searchId int
 
 	fmt.Print("Введите id task ")
-	fmt.Scan(&searchId)
-
-	if len(vault.Tasks) >= searchId && searchId > 0 && task.ReadJson() == nil {
+	testInput, err := task.GetReader().ReadString('\n') //дописать
+	if err != nil {
+		color.Red("ошибка чтения строки: %v", err)
+		return nil
+	}
+	shoice, err := strconv.Atoi(testInput)
+	if err != nil {
+		color.Red("парсинга числа: %v", err)
+		return nil
+	}
+	if len(vault.Tasks) >= shoice && searchId > 0 && task.ReadJson() == nil {
 		taskId := vault.Tasks[searchId-1]
 		fmt.Printf("Id: %d, Description: %s, Status: %s, CreatedAt: %s, UpdatedAt: %s\n", taskId.Id, taskId.Description, taskId.Status, taskId.CreatedAt, taskId.UpdatedAt)
 		return nil

@@ -13,7 +13,7 @@ const (
 )
 
 func ReadJson() error { // нужно сделать чтение массива json
-	_, err := os.Stat("task.json")
+	_, err := os.Stat(fileName)
 	if os.IsNotExist(err) {
 		fmt.Println("Файл не существует или ошибка доступа:", err)
 		return err
@@ -39,6 +39,7 @@ func WriteJson(t []byte) error {
 	defer file.Close()
 	return nil
 }
+
 func GetReader() *bufio.Reader {
 	r := bufio.NewReader(os.Stdin)
 	return r

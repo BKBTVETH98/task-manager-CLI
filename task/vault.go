@@ -12,7 +12,7 @@ type Vault struct {
 	UpdateAt string `json:"updateAt"`
 }
 
-func NewVault() *Vault { //чтение
+func NewVault() *Vault {
 	file, err := os.ReadFile(fileName)
 	if err != nil {
 		fmt.Errorf("ошибка чтения:  %w", err)
@@ -32,7 +32,7 @@ func (vault *Vault) AddTasks(t Task) error { //добавление
 	t.Id = len(vault.Tasks) + 1
 	vault.Tasks = append(vault.Tasks, t)
 
-	data, err := vault.ToBytes()
+	data, err := vault.ToBytes() //
 	vault.UpdateAt = time.Now().Format(time.DateTime)
 	if err != nil {
 		return fmt.Errorf("ошибка - %w ", err)
