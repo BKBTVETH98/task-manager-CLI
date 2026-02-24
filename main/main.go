@@ -161,10 +161,14 @@ func viewTaskId() error {
 		color.Red("парсинга числа: %v", err)
 		return nil
 	}
-	if len(vault.Tasks) >= choice && choice > 0 && task.ReadJson() == nil {
+	if vault.Tasks != nil && len(vault.Tasks) >= choice && choice > 0 {
 		taskId := vault.Tasks[choice-1]
 		fmt.Printf("Id: %d, Description: %s, Status: %s, CreatedAt: %s, UpdatedAt: %s\n", taskId.Id, taskId.Description, taskId.Status, taskId.CreatedAt, taskId.UpdatedAt)
 		return nil
 	}
-	return errors.New("задача с таким id не найдена, всего задач: " + fmt.Sprint(vault.Tasks[len(vault.Tasks)-1].Id))
+	err = task.ReadJson()
+	if err != nil {
+		return err
+	}
+	return errors.New("задача с таким id не найдена, всего задач: " + strconv.Itoa(len(vault.Tasks)))
 }

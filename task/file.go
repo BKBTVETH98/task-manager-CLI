@@ -16,8 +16,10 @@ func ReadJson() error { // нужно сделать чтение массива
 	_, err := os.Stat(fileName)
 	if os.IsNotExist(err) {
 		fmt.Println("Файл не существует или ошибка доступа:", err)
+		os.Create("task.json")
 		return err
 	}
+	//создаем файл, если его нет
 	return nil
 }
 
