@@ -12,15 +12,17 @@ const (
 	fileName string = "task.json"
 )
 
-func ReadJson() error { // нужно сделать чтение массива json
+func ReadJson() ([]byte, error) { // нужно сделать чтение массива json
 	_, err := os.Stat(fileName)
 	if os.IsNotExist(err) {
-		fmt.Println("Файл не существует или ошибка доступа:", err)
-		os.Create("task.json")
-		return err
+		fmt.Println("Файл не существует или ошибка доступа, файл будет создан:", err)
+		os.Create(fileName)
+		return nil, err
 	}
+	file, err := os.ReadFile(fileName)
+
 	//создаем файл, если его нет
-	return nil
+	return file, nil
 }
 
 func WriteJson(t []byte) error {
@@ -40,7 +42,11 @@ func WriteJson(t []byte) error {
 	return nil
 }
 
-func GetReader() *bufio.Reader {
+func GetReader() (string, error) {
 	r := bufio.NewReader(os.Stdin)
-	return r
+	text, err := r.ReadString('\n')
+	if err != nil {
+		return "", fmt.Errorf("ошибка считывания: %w", err)
+	}
+	return text, nil
 }

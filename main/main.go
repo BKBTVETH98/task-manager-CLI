@@ -15,11 +15,19 @@ import (
 func main() {
 
 	m := map[int]func(){
-		1: newtask,
-		2: getTask,
+		1: func() {
+			if err := newtask(); err != nil {
+				color.Red(err.Error())
+			}
+		},
+		2: func() {
+			if err := getTask(); err != nil {
+				color.Red(err.Error())
+			}
+		},
 		3: func() {
 			if err := foundTask(); err != nil {
-				fmt.Println(err.Error())
+				color.Red(err.Error())
 			}
 		},
 		4: func() {
@@ -30,20 +38,23 @@ func main() {
 	}
 
 	for {
-		color.Yellow("выберите действие, введя цифру от 1 до %d", len(m)) //пофиксить двойную печать
+		fmt.Println()
+		color.Yellow("выберите действие, введя цифру от 1 до %d", len(m))
 		color.Green("1, Создать таску")
 		color.Green("2, вывести все таски")
 		color.Green("3, изменить статус таски по Id")
-		color.Green("4, вывести таску по Id")
+		color.Green("4, вывести таску по Id \n")
 		fmt.Print("Ваш выбор: ")
 
-		choice, err := task.GetReader().ReadString('\n')
+		choice, err := task.GetReader() //чтение sdtin
+
 		if err != nil {
-			color.Red("ошибка чтения строки: ", err)
+			color.Red(err.Error())
 			continue
 		}
 
 		choiceInt, err := strconv.Atoi(strings.TrimSpace(choice))
+
 		if err != nil {
 			color.Red("ошибка преобразования в INT: ", err)
 			continue
@@ -56,58 +67,61 @@ func main() {
 
 }
 
-func newtask() {
+func newtask() error {
 	var status string
 	var scanTextTask string
 
-	reader := task.GetReader()
-
 	fmt.Print("Введите описание задачи: ")
-	testInput, err := reader.ReadString('\n')
+	result, err := task.GetReader()
 	if err != nil {
-		color.Red("ошибка чтения строки: %v", err)
-		return
+		return err
 	}
-	scanTextTask = strings.TrimSpace(testInput)
+	scanTextTask = strings.TrimSpace(result)
 
 	color.Green("Доступные варианты: running, pause, done")
 	fmt.Print("Введите статус задачи: ")
 
-	testInput, err = reader.ReadString('\n')
+	result, err = task.GetReader()
 	if err != nil {
-		color.Red("ошибка чтения строки: %v", err)
-		return
+		return err
 	}
 
-	status = strings.TrimSpace(testInput)
+	status = strings.TrimSpace(result)
 
 	t, err := task.NewTask(scanTextTask, task.StatusCode(status))
 	if err != nil {
-		color.Red(err.Error())
-		return
+		return err
 	}
 
 	v := task.NewVault()
+
 	v.AddTasks(*t)
+
+	fmt.Println()
+	color.Green("новая задача успешно добавлена!")
+
+	return nil
 
 }
 
-func getTask() {
+func getTask() error {
 	v := task.NewVault()
+
 	data, err := json.MarshalIndent(v, "", "  ")
 	if err != nil {
-		color.Red("ошибка вывода", err)
+		return fmt.Errorf("ошибка вывода: %w", err)
 	}
 	color.Yellow(string(data))
+	return nil
 }
 
 func foundTask() error {
-	vault := task.NewVault()
+	v := task.NewVault()
 	var status task.StatusCode
 
 	fmt.Print("Введите id task: ")
 
-	choice, err := task.GetReader().ReadString('\n')
+	choice, err := task.GetReader()
 
 	if err != nil {
 		return fmt.Errorf("Ошибка считывания - %w", err)
@@ -119,10 +133,10 @@ func foundTask() error {
 		return fmt.Errorf("Ошибка преобразования в Int - %w", err)
 	}
 
-	if vault.Tasks != nil && len(vault.Tasks) >= choiceInt && choiceInt > 0 {
-		taskId := vault.Tasks[choiceInt-1]
+	if v.Tasks != nil && len(v.Tasks) >= choiceInt && choiceInt > 0 {
+		taskId := v.Tasks[choiceInt-1]
 		fmt.Print("Введите new status task - ")
-		choice, err = task.GetReader().ReadString('\n')
+		choice, err = task.GetReader()
 		if err != nil {
 			return fmt.Errorf("Ошибка считывания - %w", err)
 		}
@@ -133,9 +147,9 @@ func foundTask() error {
 		}
 		taskId.Status = status
 		taskId.UpdatedAt = time.Now().Format(time.DateTime)
-		vault.Tasks[choiceInt-1] = taskId
-		data, err := vault.ToBytes()
-		vault.UpdateAt = time.Now().Format(time.DateTime)
+		v.Tasks[choiceInt-1] = taskId
+		data, err := v.ToBytes()
+		v.UpdateAt = time.Now().Format(time.DateTime)
 		if err != nil {
 			color.Red("не удалось перезаписать")
 		}
@@ -143,32 +157,42 @@ func foundTask() error {
 		color.Green("статус успешно изменен")
 		return nil
 	}
-	return errors.New("задача с таким id не найдена")
+	return errors.New("задача с таким id не найдена всего задач: " + strconv.Itoa(len(v.Tasks)))
 
 }
 
 func viewTaskId() error {
-	vault := task.NewVault()
+	v := task.NewVault()
 
 	fmt.Print("Введите id task ")
-	testInput, err := task.GetReader().ReadString('\n') //дописать
+
+	result, err := task.GetReader()
+
 	if err != nil {
 		color.Red("ошибка чтения строки: %v", err)
 		return nil
 	}
-	choice, err := strconv.Atoi(testInput[:len(testInput)-2])
+
+	choice, err := strconv.Atoi(result[:len(result)-2])
 	if err != nil {
 		color.Red("парсинга числа: %v", err)
 		return nil
 	}
-	if vault.Tasks != nil && len(vault.Tasks) >= choice && choice > 0 {
-		taskId := vault.Tasks[choice-1]
-		fmt.Printf("Id: %d, Description: %s, Status: %s, CreatedAt: %s, UpdatedAt: %s\n", taskId.Id, taskId.Description, taskId.Status, taskId.CreatedAt, taskId.UpdatedAt)
+
+	if v.Tasks != nil && len(v.Tasks) >= choice && choice > 0 {
+		taskId := v.Tasks[choice-1]
+		fmt.Printf("Id: %d, Description: %s, Status: %s, CreatedAt: %s, UpdatedAt: %s\n",
+			taskId.Id,
+			taskId.Description,
+			taskId.Status,
+			taskId.CreatedAt,
+			taskId.UpdatedAt)
+
 		return nil
 	}
-	err = task.ReadJson()
+	_, err = task.ReadJson()
 	if err != nil {
-		return err
+		return fmt.Errorf("задача с таким id не найдена, всего задач: %w "+strconv.Itoa(len(v.Tasks)), err)
 	}
-	return errors.New("задача с таким id не найдена, всего задач: " + strconv.Itoa(len(vault.Tasks)))
+	return errors.New("задача с таким id не найдена, всего задач: " + strconv.Itoa(len(v.Tasks)))
 }

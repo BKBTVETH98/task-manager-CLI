@@ -3,7 +3,6 @@ package task
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"time"
 )
 
@@ -13,15 +12,14 @@ type Vault struct {
 }
 
 func NewVault() *Vault {
-	file, err := os.ReadFile(fileName)
+	file, err := ReadJson()
 	if err != nil {
-		fmt.Errorf("ошибка чтения:  %w", err)
 		return &Vault{Tasks: []Task{}, UpdateAt: time.Now().Format(time.DateTime)}
 	}
+
 	var vault Vault
 	err = json.Unmarshal(file, &vault)
 	if err != nil {
-		fmt.Errorf("не удалось преобразовать в структуру %w", err)
 		return &Vault{Tasks: []Task{}, UpdateAt: time.Now().Format(time.DateTime)}
 	}
 	return &vault
@@ -37,14 +35,17 @@ func (vault *Vault) AddTasks(t Task) error { //добавление
 	if err != nil {
 		return fmt.Errorf("ошибка - %w ", err)
 	}
-	WriteJson(data)
+	err = WriteJson(data)
+	if err != nil {
+		return fmt.Errorf("ошибка - %w ", err)
+	}
 	return nil
 }
 
 func (v *Vault) ToBytes() ([]byte, error) {
 	r, err := json.Marshal(v)
 	if err != nil {
-		fmt.Errorf("Ошибка преобразования - %w", err)
+		return nil, fmt.Errorf("Ошибка преобразования - %w", err)
 	}
 	return r, nil
 }
