@@ -18,8 +18,6 @@ func ReadJson() error { // нужно сделать чтение массива
 		fmt.Println("Файл не существует или ошибка доступа:", err)
 		return err
 	}
-	v := NewVault()
-	fmt.Println(v)
 	return nil
 }
 

@@ -121,8 +121,13 @@ func foundTask() error {
 
 	if vault.Tasks != nil && len(vault.Tasks) >= choiceInt && choiceInt > 0 {
 		taskId := vault.Tasks[choiceInt-1]
-		fmt.Print("Введите new status task")
-		fmt.Scan(&status)
+		fmt.Print("Введите new status task - ")
+		choice, err = task.GetReader().ReadString('\n')
+		if err != nil {
+			return fmt.Errorf("Ошибка считывания - %w", err)
+		}
+		fmt.Println(choice)
+		status = task.StatusCode(choice)[:len(choice)-2]
 		if err := status.Validate(); err != nil {
 			return err
 		}
@@ -144,7 +149,6 @@ func foundTask() error {
 
 func viewTaskId() error {
 	vault := task.NewVault()
-	var searchId int
 
 	fmt.Print("Введите id task ")
 	testInput, err := task.GetReader().ReadString('\n') //дописать
@@ -152,13 +156,13 @@ func viewTaskId() error {
 		color.Red("ошибка чтения строки: %v", err)
 		return nil
 	}
-	shoice, err := strconv.Atoi(testInput)
+	choice, err := strconv.Atoi(testInput[:len(testInput)-2])
 	if err != nil {
 		color.Red("парсинга числа: %v", err)
 		return nil
 	}
-	if len(vault.Tasks) >= shoice && searchId > 0 && task.ReadJson() == nil {
-		taskId := vault.Tasks[searchId-1]
+	if len(vault.Tasks) >= choice && choice > 0 && task.ReadJson() == nil {
+		taskId := vault.Tasks[choice-1]
 		fmt.Printf("Id: %d, Description: %s, Status: %s, CreatedAt: %s, UpdatedAt: %s\n", taskId.Id, taskId.Description, taskId.Status, taskId.CreatedAt, taskId.UpdatedAt)
 		return nil
 	}
