@@ -33,6 +33,11 @@ func main() {
 				color.Red(err.Error())
 			}
 		},
+		5: func() {
+			if err := actionfile.DelTaskId(); err != nil {
+				color.Red(err.Error())
+			}
+		},
 	}
 
 	for {
@@ -41,11 +46,11 @@ func main() {
 		color.Green("1, Создать таску")
 		color.Green("2, вывести все таски")
 		color.Green("3, изменить статус таски по Id")
-		color.Green("4, вывести таску по Id \n")
+		color.Green("4, вывести таску по Id")
+		color.Green("5, удалить таску по Id \n")
 		fmt.Print("Ваш выбор: ")
 
 		choice, err := task.GetReader() //чтение sdtin
-
 		if err != nil {
 			color.Red(err.Error())
 			continue

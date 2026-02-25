@@ -141,3 +141,33 @@ func ViewTaskId() error {
 	}
 	return errors.New("задача с таким id не найдена, всего задач: " + strconv.Itoa(len(v.Tasks)))
 }
+
+func DelTaskId() error {
+	v := task.NewVault()
+
+	fmt.Println()
+	fmt.Print("Введите ID задачи которую нужно удалить: ")
+
+	text, err := task.GetReader()
+	if err != nil {
+		return fmt.Errorf("Не удалось считать: %w", err)
+	}
+
+	id, err := strconv.Atoi(text[:len(text)-2])
+	if err != nil {
+		color.Red("парсинга числа: %v", err)
+		return nil
+	}
+
+	err = v.DeleteTask(id)
+	if err != nil {
+		return fmt.Errorf("ошибка удаления %w", err)
+	}
+	s, err := json.MarshalIndent(v, "", "   ")
+	if err != nil {
+		return fmt.Errorf("ошибка удаления %w", err)
+	}
+	color.Green(string(s))
+	return nil
+
+}
