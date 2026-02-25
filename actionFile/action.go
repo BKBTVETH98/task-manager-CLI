@@ -92,9 +92,10 @@ func FoundTaskId() error {
 		}
 		taskId.Status = status
 		taskId.UpdatedAt = time.Now().Format(time.DateTime)
+
 		v.Tasks[choiceInt-1] = taskId
-		data, err := v.ToBytes()
 		v.UpdateAt = time.Now().Format(time.DateTime)
+		data, err := v.ToBytes()
 		if err != nil {
 			color.Red("не удалось перезаписать")
 		}
