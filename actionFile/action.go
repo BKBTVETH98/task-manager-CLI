@@ -172,3 +172,29 @@ func DelTaskId() error {
 	return nil
 
 }
+
+func GetDoneTask() {
+	v := task.NewVault()
+	for _, val := range v.Tasks {
+		if val.Status == "done" {
+			fmt.Println(val)
+		}
+	}
+}
+
+func GetRunningTask() {
+	v := task.NewVault()
+	for _, val := range v.Tasks {
+		if val.Status == "running" {
+			fmt.Println(val)
+		}
+	}
+}
+func GetPauseTask() {
+	v := task.NewVault()
+	for _, val := range v.Tasks {
+		if val.Status == "pause" {
+			fmt.Println(val)
+		}
+	}
+}

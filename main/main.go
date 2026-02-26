@@ -38,6 +38,15 @@ func main() {
 				color.Red(err.Error())
 			}
 		},
+		6: func() {
+			actionfile.GetRunningTask()
+		},
+		7: func() {
+			actionfile.GetPauseTask()
+		},
+		8: func() {
+			actionfile.GetDoneTask()
+		},
 	}
 
 	for {
@@ -47,7 +56,10 @@ func main() {
 		color.Green("2, вывести все таски")
 		color.Green("3, изменить статус таски по Id")
 		color.Green("4, вывести таску по Id")
-		color.Green("5, удалить таску по Id \n")
+		color.Green("5, удалить таску по Id ")
+		color.Green("6, вывести все таски в работе")
+		color.Green("7, вывести все таски на паузе")
+		color.Green("8, вывести все выполненные таски\n")
 		fmt.Print("Ваш выбор: ")
 
 		choice, err := task.GetReader() //чтение sdtin

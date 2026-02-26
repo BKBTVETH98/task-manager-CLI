@@ -27,7 +27,9 @@ func NewVault() *Vault {
 }
 
 func (vault *Vault) AddTasks(t Task) error { //добавление
-	t.Id = len(vault.Tasks) + 1
+
+	t.Id = vault.nextID()
+
 	vault.Tasks = append(vault.Tasks, t)
 
 	data, err := vault.ToBytes() //
@@ -71,6 +73,15 @@ func (vault *Vault) DeleteTask(id int) error {
 	}
 
 	return nil
+}
+func (vault *Vault) nextID() int {
+	max := 0
+	for _, t := range vault.Tasks {
+		if t.Id > max {
+			max = t.Id
+		}
+	}
+	return max + 1
 }
 
 func (v *Vault) ToBytes() ([]byte, error) {
